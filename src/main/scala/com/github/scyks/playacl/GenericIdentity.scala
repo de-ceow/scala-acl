@@ -27,13 +27,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.playacl
+package com.github.scyks.playacl
 
 /**
- * Identity Trait
+ * This is a generic implementation of Identity trait and a fake Identity itself
  */
-trait Identity {
+case class GenericIdentity(name: String, givenRoles: Long = 0L) extends Identity {
 
-	var roles: Long
-	val id: Long
+	var roles: Long = givenRoles
+	val id: Long = 0L
 }
+

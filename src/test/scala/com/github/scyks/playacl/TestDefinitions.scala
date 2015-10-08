@@ -1,4 +1,4 @@
-package org.playacl
+package com.github.scyks.playacl
 
 /**
  * Test definition object to define a implementation of

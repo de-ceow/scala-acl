@@ -2,7 +2,7 @@ name := "play-acl"
 
 version := "1.0-SNAPSHOT"
 
-organization := "org.playacl"
+organization := "com.github.scyks.playacl"
 
 scalaVersion := "2.11.7"
 

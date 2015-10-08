@@ -26,9 +26,44 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.playacl
+
+package com.github.scyks.playacl
 
 /**
- * Abstract Resource object
+ * Allow like trait
  */
-abstract case class Resource(name: String) extends AllowLike
+trait AllowLike {
+
+//	/**
+//	 * Allow stuff
+//	 */
+//	class AllowPrivilege(r: Resource, objectToCheck: Option[AclObject]) {
+//
+//		def to(p: Privilege): Boolean = Acl.isAllowed(r, p, objectToCheck)
+//	}
+//
+//	def allows(r: Resource) = {
+//
+//		this match {
+//			case a: Acl => new AllowPrivilege(r, None)
+//			case b: AclObject => new AllowPrivilege(r, Some(b))
+//			case _ => new AllowPrivilege(r, None)
+//		}
+//	}
+//
+//	def allows(p: Privilege) = {
+//
+//		this match {
+//			case r: Resource => new AllowPrivilege(r, None) to p
+//			case _ => throw new Exception("AllowLike is not able to handle the input")
+//		}
+//	}
+//
+//	def allows(v: Any) = {
+//
+//		this match {
+//			case r: Resource => new AllowPrivilege(r, None)
+//			case _ => throw new Exception("AllowLike is not able to handle the input")
+//		}
+//	}
+}

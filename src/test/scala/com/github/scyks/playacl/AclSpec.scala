@@ -1,4 +1,4 @@
-package org.playacl
+package com.github.scyks.playacl
 
 import TestDefinitions._
 import org.specs2.mutable._

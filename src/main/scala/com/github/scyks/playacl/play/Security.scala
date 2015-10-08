@@ -27,10 +27,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.playacl.play
+package com.github.scyks.playacl.play
 
+import com.github.scyks.playacl.{Identity, Role, Resource, Privilege, Acl}
 import play.api.mvc._
-import org.playacl.{Identity, Acl, Role, Resource, Privilege}
 
 /**
  * Play Security object

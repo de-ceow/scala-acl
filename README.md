@@ -25,23 +25,23 @@ Roles are objects, with a unique identifier which. The identifier is a bit value
 
 ## Define resources
 
-A resource have to extend `org.playacl.Resource` and contain a string identifier.
+A resource have to extend `com.github.scyks.playacl.Resource` and contain a string identifier.
 
 ```scala
-object AdminResource extends org.playacl.Resource("admin")
+object AdminResource extends com.github.scyks.playacl.Resource("admin")
 ```
 
 ## Define Privileges
 
-A privilege have to extend `org.playacl.Privilege` and contain a string identifier.
+A privilege have to extend `com.github.scyks.playacl.Privilege` and contain a string identifier.
  
 ```scala
-object ReadPrivilege extends org.playacl.Privilege("read")
+object ReadPrivilege extends com.github.scyks.playacl.Privilege("read")
 ```
 
 ## Define Roles
 
-A Role have to implement `org.playacl.Role` interface, which contains 4 abstract methods:
+A Role have to implement `com.github.scyks.playacl.Role` interface, which contains 4 abstract methods:
 
 * `getIdentifier: Long`: the role identifier bit value
 * `getRoleId: String`: returns a string identifier of this role
@@ -198,7 +198,7 @@ package controllers
 import <your security trait>
 import <your resources and privileges>
 import <your user entity>
-import org.playacl.Acl
+import com.github.scyks.playacl.Acl
 
 /** Admin controller - we want to protected this */
 class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Security {

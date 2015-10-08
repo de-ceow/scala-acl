@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.playacl
+package com.github.scyks.playacl
 
 case class GenericRole(name: String, inheritedRoles: List[Role]) extends Role {
 

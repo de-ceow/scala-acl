@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.playacl
+package com.github.scyks.playacl
 
 trait AclObject
 
@@ -36,10 +36,10 @@ trait AclObject
  * is allowed for the current defined identity.
  *
  * Usage:
- *     Acl ++ org.playacl.Role - to add a role and the right definition to the acl component
- *     Acl ++ org.playacl.Role1 ++ org.playacl.Role2
+ *     Acl ++ com.github.scyks.playacl.Role - to add a role and the right definition to the acl component
+ *     Acl ++ com.github.scyks.playacl.Role1 ++ com.github.scyks.playacl.Role2
  *
- *     Acl += org.playacl.Identity - to add the current identity to the acl
+ *     Acl += com.github.scyks.playacl.Identity - to add the current identity to the acl
  *     This identity and it's containing roles will be used for allowed checks
  *
  * How it works:
