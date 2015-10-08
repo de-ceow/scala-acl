@@ -27,7 +27,7 @@ Roles are objects, with a unique identifier which. The identifier is a bit value
 
 A resource have to extend `org.playacl.Resource` and contain a string identifier.
 
-```
+```scala
 object AdminResource extends org.playacl.Resource("admin")
 ```
 
@@ -35,7 +35,7 @@ object AdminResource extends org.playacl.Resource("admin")
 
 A privilege have to extend `org.playacl.Privilege` and contain a string identifier.
  
-```
+```scala
 object ReadPrivilege extends org.playacl.Privilege("read")
 ```
 
@@ -55,7 +55,7 @@ specific conditions on a resource. When you have a list of users, and want to sh
 to directly edit this user u can use this. An admin will have no restriction, an anonymous user
 is denied for this operation, but a user can edit his own entry.
 
-```
+```scala
 val myId = 4
 case class User(id: Int) extends AclObject
 // the assert definition
