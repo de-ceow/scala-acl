@@ -39,7 +39,7 @@ object TestDefinitions {
 
 	class WithAllowLike extends AllowLike
 
-	class User extends Identity {
+	class User extends Identity with AclObject {
 
 		var roles: Long = 3L
 		val id: Long = 0L

@@ -53,7 +53,7 @@ class AclSpec extends Specification {
 
 			val Acl = new Acl[User](List(Guest), new User)
 
-			val classWithAllowLike = new WithAllowLike()
+			//val classWithAllowLike = new WithAllowLike()
 
 			Acl.isAllowed(Competition, Edit) must beFalse
 		}

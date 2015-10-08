@@ -28,13 +28,11 @@ abstract class Role {
 	 *
 	 * Example:
 	 * return Map(
-	 *    'resource-string' => List(), // allows all in this resource
-	 *    '^resource-string' => List(), // denies all in this resource
-	 *    'resource-string' => List(
-	 *         'privilege', // allow privilege
-	 *         '^privilege', // deny privilege
-	 *         'privilege' => List((obj: Option[AclObject]) => { true }), // allow privilege by execute assertion function
-	 *         'privilege' => List((obj: Option[AclObject]) => { true }, (obj: Option[AclObject]) => { true }), // allow privilege by execute both assertions - both have to return true
+	 *    org.playacl.Resource => List(), // allows all in this resource
+	 *    org.playacl.Resource => List(
+	 *         org.playacl.Privilege, // allow privilege
+	 *         org.playacl.Privilege => List((obj: Option[AclObject]) => { true }), // allow privilege by execute assertion function
+	 *         org.playacl.Privilege => List((obj: Option[AclObject]) => { true }, (obj: Option[AclObject]) => { true }), // allow privilege by execute both assertions - both have to return true
 	 *     ),
 	 * )
 	 *

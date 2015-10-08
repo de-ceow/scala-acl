@@ -64,7 +64,6 @@ trait AclObject
  */
 case class Acl[I <: Identity](roles: List[Role], user: I) {
 
-
 	/**
 	 * available roles
 	 */
