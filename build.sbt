@@ -1,12 +1,15 @@
-name := "play-acl"
+name := "playacl"
 
 version := "1.0-SNAPSHOT"
 
-organization := "com.github.scyks.playacl"
+organization := "com.github.scyks"
 
 scalaVersion := "2.11.7"
 
+useGpg := true
+
 pomExtra := (
+	<url>http://github.com/Scyks</url>
 	<licenses>
 		<license>
 			<name>BSD-style</name>
