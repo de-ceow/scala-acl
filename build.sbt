@@ -1,6 +1,6 @@
 name := "playacl"
 
-version := "1.0-SNAPSHOT"
+version := "0.1.0"
 
 organization := "com.github.scyks"
 

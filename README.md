@@ -10,6 +10,16 @@ Let's say you have a shop system and want to display orders. The orders are sepa
 in 2 lists (open orders and closed orders). For this case you can use the acl system
 to filter entries between these 2 lists.
 
+# Install
+
+You can easily use the sbt tool to download the resources to your project.
+
+```scala
+libraryDependencies  ++=  Seq(
+	"com.github.scyks" %% "playacl" % "0.1.0"
+)
+```
+
 # How does the ACL system work
 
 The Acl system is based on classical roles. A user can have one or more roles. Each role
