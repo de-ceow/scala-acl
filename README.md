@@ -254,3 +254,29 @@ To use this `AllowLike` trait, you need an AclObject.
 * `Resource allows AclObject to Privilege`
 * `Privilege allows Resource`
 * `Privilege allows AclObject at Resource`
+
+## View implementation
+
+In a view it's necessary to provide implicit acl instance.
+
+__without request__
+
+```scala
+@import com.github.scyks.playacl.Acl
+@()(implicit acl: Acl)
+
+@if(acl allows Resource to Privilege) {
+	<h1>Hello World</h1>
+}
+```
+
+__with request__
+
+```scala
+@import com.github.scyks.playacl.Acl
+@()(implicit request: RequestHeader, acl: Acl)
+
+@if(acl allows Resource to Privilege) {
+	<h1>Hello World</h1>
+}
+```
