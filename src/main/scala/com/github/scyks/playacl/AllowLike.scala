@@ -34,36 +34,60 @@ package com.github.scyks.playacl
  */
 trait AllowLike {
 
-//	/**
-//	 * Allow stuff
-//	 */
-//	class AllowPrivilege(r: Resource, objectToCheck: Option[AclObject]) {
-//
-//		def to(p: Privilege): Boolean = Acl.isAllowed(r, p, objectToCheck)
-//	}
-//
-//	def allows(r: Resource) = {
-//
-//		this match {
-//			case a: Acl => new AllowPrivilege(r, None)
-//			case b: AclObject => new AllowPrivilege(r, Some(b))
-//			case _ => new AllowPrivilege(r, None)
-//		}
-//	}
-//
-//	def allows(p: Privilege) = {
-//
-//		this match {
-//			case r: Resource => new AllowPrivilege(r, None) to p
-//			case _ => throw new Exception("AllowLike is not able to handle the input")
-//		}
-//	}
-//
-//	def allows(v: Any) = {
-//
-//		this match {
-//			case r: Resource => new AllowPrivilege(r, None)
-//			case _ => throw new Exception("AllowLike is not able to handle the input")
-//		}
-//	}
+
+
+	/**
+	 * allows resource with aclObject
+	 * @param r the resource
+	 * @param acl the acl instance
+	 * @return
+	 */
+	def allows(r: Resource)(implicit acl: Acl): AllowLikeHelper.AllowPrivilege = {
+
+		this match {
+			case b: AclObject => new AllowLikeHelper.AllowPrivilege(r, Some(b))
+			case _ => new AllowLikeHelper.AllowPrivilege(r, None)
+		}
+	}
+
+	/**
+	 * allows a privilege with aclObject
+	 * @param p the privilege
+	 * @param acl the acl instance
+	 * @return
+	 */
+	def allows(p: Privilege)(implicit acl: Acl): AllowLikeHelper.AllowResource = {
+
+		this match {
+			case b: AclObject => new AllowLikeHelper.AllowResource(p, Some(b))
+			case _ => new AllowLikeHelper.AllowResource(p, None)
+		}
+	}
+}
+
+object AllowLikeHelper {
+
+	/**
+	 * Allow stuff
+	 */
+	class AllowPrivilege(r: Resource, objectToCheck: Option[AclObject])(implicit acl: Acl) {
+
+		def to(p: Privilege): Boolean = acl.isAllowed(r, p, objectToCheck)
+	}
+
+	/**
+	 * Allow stuff
+	 */
+	class AllowResource(p: Privilege, objectToCheck: Option[AclObject])(implicit acl: Acl) {
+
+		def at(r: Resource): Boolean = acl.isAllowed(r, p, objectToCheck)
+	}
+
+	/**
+	 * Allow stuff
+	 */
+	class AllowObject(objectToCheck: Option[AclObject])(implicit acl: Acl) {
+
+		def at(r: Resource) = new AllowPrivilege(r, objectToCheck)
+	}
 }

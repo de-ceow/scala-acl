@@ -28,7 +28,26 @@
  */
 package com.github.scyks.playacl
 
+import com.github.scyks.playacl.AllowLikeHelper._
+
 /**
  * Abstract Resource object
  */
-abstract case class Resource(name: String) extends AllowLike
+abstract case class Resource(name: String) {
+
+	/**
+	 * allows privilege on resource
+	 * @param p privilege
+	 * @param acl the acl instance
+	 * @return
+	 */
+	def allows(p: Privilege)(implicit acl: Acl): Boolean = acl.isAllowed(this, p, None)
+
+	/**
+	 * allows for aclObject
+	 * @param v the acl object
+	 * @param acl the acl instance
+	 * @return
+	 */
+	def allows(v: AclObject)(implicit acl: Acl): AllowPrivilege = new AllowPrivilege(this, Some(v))
+}

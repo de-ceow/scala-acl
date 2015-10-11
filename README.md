@@ -16,7 +16,7 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"com.github.scyks" %% "playacl" % "0.1.0"
+	"com.github.scyks" %% "playacl" % "0.2.0"
 )
 ```
 
@@ -77,7 +77,7 @@ case class User(id: Int) extends AclObject
 acl.isAllowed(UserResource, EditPrivilege, Some(currentUser)) // returns true or false
 ```
 
-This is definitly not a good way to do this, and i'm currently working on
+This is definitely not a good way to do this, and i'm currently working on
 a solution to define this in an easier way. If someone have an idea, please let me know.
 
 ## The Security Trait
@@ -161,7 +161,7 @@ object Admin extends Role {
 
 case class UserEntity(id: Int, roles: Long) extends Identity
 
-trait Security extends net.cc.base.acl.play.Security[UserEntity, Role] {
+trait Security extends net.cc.base.acl.play.Security {
 	override def userByUsername(username: String): Option[UserEntity] = {
 		UserRepository.findByUserName(username) match {
 			case Success(user) => Some(user)
@@ -183,17 +183,12 @@ it will be initialized there. Also when you want to retrieve the logged in user.
 The Standard implementation contains 4 Methods, which are checking if a user is logged in
 and return the Acl or the user instance or even check a resource and privilege directly.
 
-__Currently, i know that this behavior is not always useful, i will improve these methods to
-be more flexible.__
-
 * `withAuth`: check if user is logged in, otherwise `onUnauthorized` will be called
-* `withUser`: check if user is logged in and provide user, otherwise `onUnauthorized` will be called
-* `withAcl`: check if user is logged in and provide acl instance, otherwise `onUnauthorized` will be called
+* `withUser`: will provide the logged in or the guest user instance
+* `withAcl`: will provide the acl instance
 * `withProtected(r: Resource, p: Privilege)`: 
-    * if user is not logged in -> `onUnauthorized` will be called
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
 * `withProtectedAcl(r: Resource, p: Privilege)`: 
-    * if user is not logged in -> `onUnauthorized` will be called
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
     
@@ -234,3 +229,28 @@ class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Secu
 	}
 }
 ```
+
+# Using acl protection in views / controller
+
+A Requirement for doing this is an instance of `acl: Acl` in the current context. The acl object
+will be passed as `implicit` parameter.
+
+For checking the rights you have a lot of options to ask:
+
+* `acl.isAllowed(Resource, Privilege, Some(AclObject))`
+
+__use `AllowLike` trait__
+
+To use this `AllowLike` trait, you need an AclObject.
+
+`case class User extends AclObject With AllowLike`
+
+* `acl allows Resource to Privilege`
+* `acl allows Privilege at Resource`
+* `acl allows AclObject ad Resource to Privilege`
+* `AclObject allows Resource to Privilege`
+* `AclObject allows Privilege at Resource`
+* `Resource allows Privilege`
+* `Resource allows AclObject to Privilege`
+* `Privilege allows Resource`
+* `Privilege allows AclObject at Resource`

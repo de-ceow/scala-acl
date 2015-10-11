@@ -34,6 +34,6 @@ package com.github.scyks.playacl
  */
 trait Identity {
 
-	var roles: Long
-	val id: Long
+	def roles: Long
+	def id: Long
 }

@@ -6,45 +6,76 @@ package com.github.scyks.playacl
  */
 object TestDefinitions {
 
-	object Competition extends Resource("competition")
-	object Show extends Privilege("show")
-	object Expand extends Privilege("expand")
-	object Manage extends Privilege("manage")
-	object Edit extends Privilege("edit")
+	/** Resources */
+	object MainResource extends Resource("main")
+	object UserResource extends Resource("user")
+	object AdminResource extends Resource("admin")
 
+	/** Privileges */
+	object ReadPrivilege extends Privilege("read")
+	object CreatePrivilege extends Privilege("create")
+	object LoggedInPrivilege extends Privilege("loggedIn")
+	object ManagePrivilege extends Privilege("manage")
+
+	/** User Roles */
 	object Guest extends Role {
+
 		override def getIdentifier: Long = 1L
-		override def getRoleId: String = "guest"
-		override def getPrivileges: Map[Resource, Map[Privilege, Seq[Option[AclObject] => Boolean]]] = Map(
-			Competition -> Map(
-				Show -> Seq((value: Option[AclObject]) => true),
-				Expand -> Seq(),
-				Edit -> Seq((value: Option[AclObject]) => false)
+		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+			Map(
+				MainResource -> Map(
+					ReadPrivilege -> Seq()
+				),
+				UserResource -> Map(
+					ReadPrivilege -> Seq(),
+					CreatePrivilege -> Seq((obj: Option[AclObject]) => {
+						obj match {
+							case Some(u: User) => u.id == 3
+							case _ => false
+						}
+					})
+				)
 			)
-		)
-		override def getInheritedRoles = List()
+		}
+		override def getInheritedRoles: List[Role] = List()
+		override def getRoleId: String = "guest"
+	}
+	object Registered extends Role {
+
+		override def getIdentifier: Long = 2L
+		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+			Map(
+				UserResource -> Map(
+					LoggedInPrivilege -> Seq()
+				)
+			)
+		}
+		override def getInheritedRoles: List[Role] = List(Guest)
+		override def getRoleId: String = "registered"
 	}
 
-
 	object Admin extends Role {
-		override def getIdentifier: Long = 2L
-		override def getRoleId: String = "admin"
-		override def getPrivileges: Map[Resource, Map[Privilege, Seq[Option[AclObject] => Boolean]]] = Map(
-			Competition -> Map(
-				Manage -> Seq()
+
+		override def getIdentifier: Long = 4L
+		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+			Map(
+				AdminResource -> Map(
+					ReadPrivilege -> Seq(),
+					ManagePrivilege -> Seq()
+				)
 			)
-		)
-		override def getInheritedRoles = List(Guest)
+		}
+		override def getInheritedRoles: List[Role] = List(Registered)
+		override def getRoleId: String = "admin"
 	}
 
 	class WithAllowLike extends AllowLike
 
-	class User extends Identity with AclObject {
+	case class User(id: Long = 0L) extends Identity with AclObject {
 
 		var roles: Long = 3L
-		val id: Long = 0L
+
 	}
 
 	object ObjectToCheck extends AclObject
-
 }

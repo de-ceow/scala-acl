@@ -91,7 +91,7 @@ trait AclObject
  *     Acl.isAllowed(Resource, Privilege, Some(Foo))
  *
  */
-case class Acl[I <: Identity](roles: List[Role], user: I) {
+case class Acl(roles: List[Role], user: Identity) extends AllowLike {
 
 	/**
 	 * available roles
@@ -111,12 +111,12 @@ case class Acl[I <: Identity](roles: List[Role], user: I) {
 	/**
 	 * the observer (Identity)
 	 */
-	def observerEntity: I = user
+	def observerEntity: Identity = user
 
 	/**
 	 * create the custom role for the current user
 	 */
-	def generateGenericRole(user: I) = {
+	def generateGenericRole(user: Identity) = {
 
 		val inheritedRoles = roleRegistry.filter(role => (user.roles & role.getIdentifier) == role.getIdentifier)
 		GenericRole("user_role_%d" format user.id, inheritedRoles)
@@ -179,4 +179,28 @@ case class Acl[I <: Identity](roles: List[Role], user: I) {
 
 		currentAccess || inheritedRoles.contains(true)
 	}
+
+	/**
+	 * allow like for acl instance to check for resource
+	 * @param r the resource
+	 * @param acl the acl instance
+	 * @return
+	 */
+	override def allows(r: Resource)(implicit acl: Acl) = new AllowLikeHelper.AllowPrivilege(r, None)
+
+	/**
+	 * allow like for privilege to check for
+	 * @param p the privilege
+	 * @param acl the acl instance
+	 * @return
+	 */
+	override def allows(p: Privilege)(implicit acl: Acl) = new AllowLikeHelper.AllowResource(p, None)
+
+	/**
+	 * allows for acl object
+	 * @param v AclObject
+	 * @param acl the acl instance
+	 * @return
+	 */
+	def allows(v: AclObject)(implicit acl: Acl) = new AllowLikeHelper.AllowObject(Some(v))
 }
