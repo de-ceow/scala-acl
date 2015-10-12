@@ -41,7 +41,7 @@ trait Security extends Auth {
 	/**
 	 * will return a Option[Identity]
 	 */
-	def userByUsername(username: String): Option[Identity]
+	def userByUsername(username: String)(implicit request: RequestHeader): Option[Identity]
 
 	/**
 	 * will return a Identity which represents a guest user

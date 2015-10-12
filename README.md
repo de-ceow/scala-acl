@@ -87,7 +87,7 @@ in a controller action to initialize and retrieve the ACL instance for the curre
 is no user logged in, there is a guest user defined. To implement the Security trait you need to
 define these methods:
 
-* `userByUsername(username: String): Option[I]` to retrieve a user from some storage by given username
+* `userByUsername(username: String)(implicit acl: Acl): Option[I]` to retrieve a user from some storage by given username
 * `roles: List[Role]` the list of available roles
 * `guestRole: Role` the guest role
 * `guestUser: UserEntity` to return a guest / anonymous user
@@ -162,7 +162,7 @@ object Admin extends Role {
 case class UserEntity(id: Int, roles: Long) extends Identity
 
 trait Security extends net.cc.base.acl.play.Security {
-	override def userByUsername(username: String): Option[UserEntity] = {
+	override def userByUsername(username: String)(implicit acl: Acl): Option[UserEntity] = {
 		UserRepository.findByUserName(username) match {
 			case Success(user) => Some(user)
 			case Failure(ex) => None
@@ -216,7 +216,7 @@ class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Secu
 		Ok("")
 	}
 	
-	def dashboard = withAcl { implicit acl: Acl[UserEntity] => implicit request =>
+	def dashboard = withAcl { implicit acl: Acl => implicit request =>
 		Ok("")
 	}
 	
@@ -224,7 +224,7 @@ class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Secu
     	Ok("")
 	}
 
-	def dashboard = withProtectedAcl(AdminResource, ReadPrivilege) { implicit acl: Acl[UserEntity] => implicit request =>
+	def dashboard = withProtectedAcl(AdminResource, ReadPrivilege) { implicit acl: Acl => implicit request =>
     	Ok("")
 	}
 }
