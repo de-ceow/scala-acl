@@ -16,7 +16,7 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"com.github.scyks" %% "playacl" % "0.2.0"
+	"com.github.scyks" %% "playacl" % "0.3.0"
 )
 ```
 
