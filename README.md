@@ -171,6 +171,7 @@ trait Security extends net.cc.base.acl.play.Security {
 	override def roles: List[Role] = Guest :: Registered :: Admin:: Nil
 	override def guestRole: Role = Guest
 	override def guestUser: UserEntity = new UserEntity(0, 1L)
+	override def onUnauthenticated(request: RequestHeader) = Results.Redirect("/login")
 	override def onUnauthorized(request: RequestHeader) = Results.Redirect("/login")
 }
 ```
@@ -183,7 +184,7 @@ it will be initialized there. Also when you want to retrieve the logged in user.
 The Standard implementation contains 4 Methods, which are checking if a user is logged in
 and return the Acl or the user instance or even check a resource and privilege directly.
 
-* `withAuth`: check if user is logged in, otherwise `onUnauthorized` will be called
+* `withAuth`: check if user is logged in, otherwise `onUnauthenticated` will be called
 * `withUser`: will provide the logged in or the guest user instance
 * `withAcl`: will provide the acl instance
 * `withProtected(r: Resource, p: Privilege)`: 

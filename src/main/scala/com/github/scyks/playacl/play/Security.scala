@@ -36,7 +36,7 @@ import play.api.mvc._
  * Play Security object
  * wraps play.api.mvc.Security
  */
-trait Security extends Auth {
+trait Security {
 
 	/**
 	 * will return a Option[Identity]
@@ -57,6 +57,43 @@ trait Security extends Auth {
 	 * will return a Role which represent the guest role
 	 */
 	def guestRole: Role
+
+	/**
+	 * will return the username / email from the session
+	 */
+	def username(request: RequestHeader) = request.session.get(Security.username)
+
+	/**
+	 * method, what happens when a user is not authenticated or
+	 * the ACL declines the user to access
+	 * @param request the given requets
+	 * @return
+	 */
+	def onUnauthenticated(request: RequestHeader): Result
+
+	/**
+	 * method, which is called, when a user are not allowed to see this page
+	 * @param request the given requets
+	 * @return
+	 */
+	def onUnauthorized(request: RequestHeader): Result
+
+	/**
+	 * this method will check if a user is authenticated and applies it's username/email
+	 * to the action.
+	 * If the user is not authenticated the result of "onUnauthenticated" is returned
+	 *
+	 * def myAction = withAuth { username => implicit request
+	 * 		// Ok(username)
+	 * }
+	 */
+	def withAuth(f: => String => Request[AnyContent] => Result) = {
+
+		Security.Authenticated(username, onUnauthenticated) { user =>
+
+			Action(request => f(user)(request))
+		}
+	}
 
 	/**
 	 * this method will check if the user is authenticated and applies the
