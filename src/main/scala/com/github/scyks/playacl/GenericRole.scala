@@ -69,5 +69,5 @@ case class GenericRole(name: String, inheritedRoles: List[Role]) extends Role {
 	 *
 	 * if you define an privilege in an resource, the whole resource is denied and only defined privilegs are allowed
 	 */
-	override def getPrivileges: Map[Resource, Map[Privilege, Seq[Option[AclObject] => Boolean]]] = Map()
+	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = Map()
 }

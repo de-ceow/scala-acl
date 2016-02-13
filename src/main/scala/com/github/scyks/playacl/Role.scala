@@ -66,5 +66,5 @@ abstract class Role {
 	 *
 	 * if you define an privilege in an resource, the whole resource is denied and only defined privilegs are allowed
 	 */
-	def getPrivileges: Map[Resource, Map[Privilege, Seq[Option[AclObject] => Boolean]]]
+	def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]]
 }

@@ -101,7 +101,7 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
 	/**
 	 * rule definitions
 	 */
-	lazy val rules: Map[String, Seq[Option[AclObject] => Boolean]] = applyRules(roles)
+	lazy val rules: Map[String, Seq[(Option[AclObject], Acl) => Boolean]] = applyRules(roles)
 
 	/**
 	 * the role of the observer itself
@@ -126,7 +126,7 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
 	 * apply the rule definition from a role to a easy understandable format for the acl to
 	 * check against
 	 */
-	def applyRules(roles: List[Role]): Map[String, Seq[Option[AclObject] => Boolean]] = {
+	def applyRules(roles: List[Role]): Map[String, Seq[(Option[AclObject], Acl) => Boolean]] = {
 
 		val convertedRules = for {
 			role <- roles
@@ -168,7 +168,7 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
 			val hash = createHash(roleToCheck, resource, privilege)
 
 			def assertions: List[Boolean] = rules.collect{
-				case (`hash`, definition) => definition.map(_ apply objectToCheck)
+				case (`hash`, definition) => definition.map(_ apply(objectToCheck, this))
 			}.toList.flatten
 
 			rules.contains(hash) && !assertions.contains(false)

@@ -29,8 +29,8 @@
 
 package com.github.scyks.playacl.play
 
-import com.github.scyks.playacl.{Identity, Role, Resource, Privilege, Acl}
-import play.api.mvc._
+import com.github.scyks.playacl._
+import _root_.play.api.mvc._
 
 /**
  * Play Security object
@@ -148,6 +148,27 @@ trait Security {
 	}
 
 	/**
+	  * this method will check if the user is allowed for resource and privilege on
+	  * specific object and applies an instance of Acl to the action.
+	  * If the Acl check will fail the result of "onUnauthorized" is returned
+	  *
+	  * def myAction = withProtectedAcl(myResource, myPrivilege, () = MyObject) { Acl: Acl[I] => implicit request
+	  * 		// Ok(Acl.observerIdentity.roles.toString)
+	  * }
+	  */
+	def withProtectedAcl(resource: Resource, privilege: Privilege, objectToCheck: () => Option[AclObject])(f: Acl => Request[AnyContent] => Result) = Action { implicit request =>
+
+		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
+		val acl = new Acl(roles, user)
+
+		if (acl.isAllowed(resource, privilege, objectToCheck()))
+
+			f(acl)(request)
+		else
+			onUnauthorized(request)
+	}
+
+	/**
 	 * This method will check if the user is allowed for given resource and privilege
 	 * If the Acl check will fail the result of "onUnauthorized" is returned
 	 *
@@ -166,4 +187,26 @@ trait Security {
 		else
 			onUnauthorized(request)
 	}
+
+	/**
+	 * This method will check if the user is allowed for given resource and privilege
+  	 * on specific object
+	 * If the Acl check will fail the result of "onUnauthorized" is returned
+	 *
+	 * def myAction = withProtected(myResource, myPrivilege) {implicit request
+	 * 		// Ok("done")
+	 * }
+	 */
+	def withProtected(resource: Resource, privilege: Privilege, objectToCheck: () => Option[AclObject])(f: Request[AnyContent] => Result) = Action { implicit request =>
+
+		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
+		val acl = new Acl(roles, user)
+
+		if (acl.isAllowed(resource, privilege, objectToCheck()))
+
+			f(request)
+		else
+			onUnauthorized(request)
+	}
+
 }

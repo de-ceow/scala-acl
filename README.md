@@ -16,7 +16,7 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"com.github.scyks" %% "playacl" % "0.3.0"
+	"com.github.scyks" %% "playacl" % "0.4.0"
 )
 ```
 
@@ -56,11 +56,11 @@ A Role have to implement `com.github.scyks.playacl.Role` interface, which contai
 * `getIdentifier: Long`: the role identifier bit value
 * `getRoleId: String`: returns a string identifier of this role
 * `getInheritedRole: List[Role]`: a list of parent roles
-* `getPrivileges: Map[Resource, Map[Privilege, Seq[Option[AclObject] => Boolean]]]`: the complete definition of rights
+* `getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]]`: the complete definition of rights
 
 ### Assertions
 
-Assertions, defined in `Seq[Option[AclObject] => Boolean]` are callback functions to define
+Assertions, defined in `Seq[(Option[AclObject], Acl) => Boolean]` are callback functions to define
 specific conditions on a resource. When you have a list of users, and want to show an edit button
 to directly edit this user u can use this. An admin will have no restriction, an anonymous user
 is denied for this operation, but a user can edit his own entry.
@@ -69,8 +69,8 @@ is denied for this operation, but a user can edit his own entry.
 val myId = 4
 case class User(id: Int) extends AclObject
 // the assert definition
-(user: Option[AclObject]) => user match {
-	case Some(u: User) => u.exists(_.id == myId)
+(user: Option[AclObject], acl: Acl) => user match {
+	case Some(u: User) => u.exists(_.id == acl.observerEntity.id)
 	case _ => false
 }
 
@@ -116,7 +116,7 @@ object ManagePrivilege extends Privilege("manage")
 object Guest extends Role {
 
 	override def getIdentifier: Long = 1L
-	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 		Map(
 			MainResource -> Map(
 				ReadPrivilege -> Seq()
@@ -133,7 +133,7 @@ object Guest extends Role {
 object Registered extends Role {
 
 	override def getIdentifier: Long = 2L
-	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 		Map(
 			UserResource -> Map(
 				LoggedInPrivilege -> Seq()
@@ -147,7 +147,7 @@ object Registered extends Role {
 object Admin extends Role {
 	
 	override def getIdentifier: Long = 4L
-	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+	override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 		Map(
 			AdminResource -> Map(
 				ReadPrivilege -> Seq(),
@@ -189,8 +189,13 @@ and return the Acl or the user instance or even check a resource and privilege d
 * `withAcl`: will provide the acl instance
 * `withProtected(r: Resource, p: Privilege)`: 
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
+* `withProtected(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
+    * if acl check against resource privilege on objecttoCheck fails -> `onUnauthorized` will be called
 * `withProtectedAcl(r: Resource, p: Privilege)`: 
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
+    * if logged in and acl check is true -> return Acl Instance
+* `withProtectedAcl(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
+    * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
     
 
@@ -224,8 +229,16 @@ class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Secu
 	def dashboard = withProtected(AdminResource, ReadPrivilege) { implicit request =>
     	Ok("")
 	}
+	
+	def dashboard = withProtected(AdminResource, ReadPrivilege, DataSource.getData) { implicit request =>
+    	Ok("")
+	}
 
 	def dashboard = withProtectedAcl(AdminResource, ReadPrivilege) { implicit acl: Acl => implicit request =>
+    	Ok("")
+	}
+	
+	def dashboard = withProtectedAcl(AdminResource, ReadPrivilege, DataSource.getData) { implicit acl: Acl => implicit request =>
     	Ok("")
 	}
 }
@@ -281,3 +294,11 @@ __with request__
 	<h1>Hello World</h1>
 }
 ```
+
+## Changelog
+
+### 0.3.0 -> 0.4.0
+
+- passing the acl instance to the assertion
+- implement 2 new methods to check also in play controller against an AclObject
+

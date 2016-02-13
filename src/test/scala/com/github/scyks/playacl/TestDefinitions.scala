@@ -21,14 +21,14 @@ object TestDefinitions {
 	object Guest extends Role {
 
 		override def getIdentifier: Long = 1L
-		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 			Map(
 				MainResource -> Map(
 					ReadPrivilege -> Seq()
 				),
 				UserResource -> Map(
 					ReadPrivilege -> Seq(),
-					CreatePrivilege -> Seq((obj: Option[AclObject]) => {
+					CreatePrivilege -> Seq((obj: Option[AclObject], acl: Acl) => {
 						obj match {
 							case Some(u: User) => u.id == 3
 							case _ => false
@@ -43,7 +43,7 @@ object TestDefinitions {
 	object Registered extends Role {
 
 		override def getIdentifier: Long = 2L
-		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 			Map(
 				UserResource -> Map(
 					LoggedInPrivilege -> Seq()
@@ -57,7 +57,7 @@ object TestDefinitions {
 	object Admin extends Role {
 
 		override def getIdentifier: Long = 4L
-		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject]) => Boolean]]] = {
+		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 			Map(
 				AdminResource -> Map(
 					ReadPrivilege -> Seq(),
