@@ -1,10 +1,10 @@
 name := "playacl"
 
-version := "0.4.0"
+version := "0.5.0"
 
 organization := "com.github.scyks"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 useGpg := true
 
@@ -36,7 +36,7 @@ scalacOptions ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-	"com.typesafe.play" %% "play" % "2.4.3",
+	"com.typesafe.play" %% "play" % "2.5.0",
 	"org.specs2" %% "specs2-core" % "3.6.4" % "test"
 )
 

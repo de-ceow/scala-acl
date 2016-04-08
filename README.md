@@ -297,7 +297,12 @@ __with request__
 
 ## Changelog
 
-### 0.3.0 -> 0.4.0
+### 0.5.0
+
+- update scala version to 2.11.8
+- update pla framework to 2.5.0
+
+### 0.4.0
 
 - passing the acl instance to the assertion
 - implement 2 new methods to check also in play controller against an AclObject
