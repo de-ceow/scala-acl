@@ -51,3 +51,5 @@ publishTo := {
 	else
 		Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
+
+resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
