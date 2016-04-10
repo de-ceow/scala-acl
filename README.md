@@ -2,6 +2,9 @@
 
 *A lightweight and flexible ACL module for Play Framework.*
 
+[![Build Status](https://travis-ci.org/Scyks/play-acl.svg?branch=master)](https://travis-ci.org/Scyks/play-acl)
+
+
 This is a module to implement a simple Acl system to play framework. With this
 module, you can protect controller actions, or anything else.
 
