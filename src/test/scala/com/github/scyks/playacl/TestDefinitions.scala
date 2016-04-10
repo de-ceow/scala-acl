@@ -1,5 +1,10 @@
 package com.github.scyks.playacl
 
+import javax.inject.Inject
+
+import _root_.play.api.mvc._
+import akka.stream.Materializer
+
 /**
  * Test definition object to define a implementation of
  * the ACL system for an integration test
@@ -46,6 +51,12 @@ object TestDefinitions {
 		override def getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]] = {
 			Map(
 				UserResource -> Map(
+					ReadPrivilege -> Seq((obj: Option[AclObject], acl: Acl) => {
+						obj match {
+							case Some(u: User) => u.id == acl.observerEntity.id
+							case _ => false
+						}
+					}),
 					LoggedInPrivilege -> Seq()
 				)
 			)
@@ -71,11 +82,57 @@ object TestDefinitions {
 
 	class WithAllowLike extends AllowLike
 
-	case class User(id: Long = 0L) extends Identity with AclObject {
-
-		var roles: Long = 3L
-
-	}
+	case class User(id: Long = 1, name: String = "user", roles: Long = 3L) extends Identity with AclObject
 
 	object ObjectToCheck extends AclObject
+
+	class UnauthorizedException extends Exception
+	class UnauthenticatedException extends Exception
+
+	trait Security extends com.github.scyks.playacl.play.Security[User] with Results {
+
+		override def userByUsername(username: String)(implicit request: RequestHeader): Option[User] = username match {
+
+			case "user" => Some(new User(1, "user", 3L))
+			case "admin" => Some(new User(2, "admin", 7L))
+			case _ => None
+		}
+		override def guestRole: Role = Guest
+		override def guestUser: User = new User(1, "guest", 1L)
+		override def roles: List[Role] = List(Guest, Registered, Admin)
+
+		override def onUnauthenticated(request: RequestHeader) = BadRequest("Unauthenticated")
+		override def onUnauthorized(request: RequestHeader) = BadRequest("Unauthorized")
+	}
+
+	class ExampleController extends Controller with Security {
+
+		def withAuthAction = withAuth { username =>  implicit request =>
+			Ok("OK " + username)
+		}
+
+		def withUserAction = withUser { user: User => implicit request =>
+			Ok("OK " + user.name)
+		}
+
+		def withAclAction = withAcl { implicit acl: Acl => implicit request =>
+			Ok("OK")
+		}
+
+		def withProtectedAction = withProtected(AdminResource, ReadPrivilege) { implicit request =>
+			Ok("OK")
+		}
+
+		def withProtectedResourceAction(id: Long) = withProtected(AdminResource, ReadPrivilege, () => Some(new User(id = id))) {user: Option[User] => implicit request =>
+			Ok("OK " + user.map(_.name).getOrElse("unknown"))
+		}
+
+		def withProtectedAclAction = withProtectedAcl(AdminResource, ReadPrivilege) { implicit acl: Acl => implicit request =>
+			Ok("OK")
+		}
+
+		def withProtectedAclResourceAction(id: Long) = withProtectedAcl(AdminResource, ReadPrivilege, () => Some(new User(id = id))) { user: Option[User] => acl: Acl => implicit request =>
+			Ok("OK " + user.map(_.name).getOrElse("unknown"))
+		}
+	}
 }

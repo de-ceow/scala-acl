@@ -58,8 +58,7 @@ class AclSpec extends Specification {
 
 		"is be able to allow Admin for admin/manage" in {
 
-			val user = new User
-			user.roles = Guest.getIdentifier | Admin.getIdentifier
+			val user = new User(roles = Guest.getIdentifier | Admin.getIdentifier)
 			val acl = new Acl(List(Guest, Admin), user)
 
 			acl.isAllowed(AdminResource, ManagePrivilege) must beTrue

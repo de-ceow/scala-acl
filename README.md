@@ -1,6 +1,8 @@
 # Play Acl Module
 
-This is a module to implement a simple acl system to play framework. With this
+*A lightweight and flexible ACL module for Play Framework.*
+
+This is a module to implement a simple Acl system to play framework. With this
 module, you can protect controller actions, or anything else.
 
 You can protect an admin area, or hide information / actions for specific users.
@@ -16,7 +18,7 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"com.github.scyks" %% "playacl" % "0.4.0"
+	"com.github.scyks" %% "playacl" % "0.6.0"
 )
 ```
 
@@ -230,7 +232,7 @@ class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Secu
     	Ok("")
 	}
 	
-	def dashboard = withProtected(AdminResource, ReadPrivilege, DataSource.getData) { implicit request =>
+	def dashboard = withProtected(AdminResource, ReadPrivilege, DataSource.getData) { user => implicit request =>
     	Ok("")
 	}
 
@@ -238,7 +240,7 @@ class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Secu
     	Ok("")
 	}
 	
-	def dashboard = withProtectedAcl(AdminResource, ReadPrivilege, DataSource.getData) { implicit acl: Acl => implicit request =>
+	def dashboard = withProtectedAcl(AdminResource, ReadPrivilege, DataSource.getData) { user => implicit acl: Acl => implicit request =>
     	Ok("")
 	}
 }
@@ -294,8 +296,14 @@ __with request__
 	<h1>Hello World</h1>
 }
 ```
-
 ## Changelog
+
+### 0.6.0
+
+- implementing unit tests for Security Trait
+- reuse code blocks in security trait
+- pass checked object to controller action
+- implement travis ci
 
 ### 0.5.0
 

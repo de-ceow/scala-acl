@@ -1,6 +1,6 @@
 name := "playacl"
 
-version := "0.5.0"
+version := "0.6.0"
 
 organization := "com.github.scyks"
 
@@ -36,8 +36,10 @@ scalacOptions ++= Seq(
 )
 
 libraryDependencies ++= Seq(
+	specs2 % Test,
 	"com.typesafe.play" %% "play" % "2.5.0",
-	"org.specs2" %% "specs2-core" % "3.6.4" % "test"
+	"com.typesafe.play" %% "play-test" % "2.5.0" % Test,
+	"org.slf4j" % "slf4j-simple" % "1.7.2" % Test
 )
 
 publishMavenStyle := true

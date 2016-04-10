@@ -36,17 +36,17 @@ import _root_.play.api.mvc._
  * Play Security object
  * wraps play.api.mvc.Security
  */
-trait Security {
+trait Security[I <: Identity] {
 
 	/**
 	 * will return a Option[Identity]
 	 */
-	def userByUsername(username: String)(implicit request: RequestHeader): Option[Identity]
+	def userByUsername(username: String)(implicit request: RequestHeader): Option[I]
 
 	/**
 	 * will return a Identity which represents a guest user
 	 */
-	def guestUser: Identity
+	def guestUser: I
 
 	/**
 	 * will return a list of defined Roles
@@ -104,7 +104,7 @@ trait Security {
 	 * 		// Ok(user.roles.toString)
 	 * }
 	 */
-	def withUser(f: Identity => Request[AnyContent] => Result) = Action { implicit request =>
+	def withUser(f: I => Request[AnyContent] => Result): Action[AnyContent] = Action { implicit request =>
 
 		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
 		f(user)(request)
@@ -118,12 +118,9 @@ trait Security {
 	 * 		// Ok(Acl.observerIdentity.roles.toString)
 	 * }
 	 */
-	def withAcl(f: Acl => Request[AnyContent] => Result) = Action { implicit request =>
+	def withAcl(action: Acl => Request[AnyContent] => Result): Action[AnyContent] = withUser{ user => implicit request =>
 
-		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
-		val acl = new Acl(roles, user)
-
-		f(acl)(request)
+		action(new Acl(roles, user))(request)
 	}
 
 	/**
@@ -135,16 +132,9 @@ trait Security {
 	 * 		// Ok(Acl.observerIdentity.roles.toString)
 	 * }
 	 */
-	def withProtectedAcl(resource: Resource, privilege: Privilege)(f: Acl => Request[AnyContent] => Result) = Action { implicit request =>
+	def withProtectedAcl(resource: Resource, privilege: Privilege)(action: Acl => Request[AnyContent] => Result): Action[AnyContent] = {
 
-		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
-		val acl = new Acl(roles, user)
-
-		if (acl.isAllowed(resource, privilege))
-
-			f(acl)(request)
-		else
-			onUnauthorized(request)
+		withProtectedAcl(resource, privilege, () => None){obj => action}
 	}
 
 	/**
@@ -156,16 +146,18 @@ trait Security {
 	  * 		// Ok(Acl.observerIdentity.roles.toString)
 	  * }
 	  */
-	def withProtectedAcl(resource: Resource, privilege: Privilege, objectToCheck: () => Option[AclObject])(f: Acl => Request[AnyContent] => Result) = Action { implicit request =>
+	def withProtectedAcl[O <: AclObject](
+		resource: Resource,
+		privilege: Privilege,
+		objectToCheck: () => Option[O]
+	)(f: Option[O] => Acl => Request[AnyContent] => Result): Action[AnyContent] = withAcl { acl: Acl => implicit request =>
 
-		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
-		val acl = new Acl(roles, user)
+		val obj = objectToCheck()
+		acl.isAllowed(resource, privilege, obj) match {
 
-		if (acl.isAllowed(resource, privilege, objectToCheck()))
-
-			f(acl)(request)
-		else
-			onUnauthorized(request)
+			case true => f(obj)(acl)(request)
+			case false => onUnauthorized(request)
+		}
 	}
 
 	/**
@@ -176,16 +168,9 @@ trait Security {
 	 * 		// Ok("done")
 	 * }
 	 */
-	def withProtected(resource: Resource, privilege: Privilege)(f: Request[AnyContent] => Result) = Action { implicit request =>
+	def withProtected(resource: Resource, privilege: Privilege)(action: Request[AnyContent] => Result): Action[AnyContent] = {
 
-		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
-		val acl = new Acl(roles, user)
-
-		if (acl.isAllowed(resource, privilege))
-
-			f(request)
-		else
-			onUnauthorized(request)
+		withProtectedAcl(resource, privilege) { acl: Acl => action}
 	}
 
 	/**
@@ -197,16 +182,16 @@ trait Security {
 	 * 		// Ok("done")
 	 * }
 	 */
-	def withProtected(resource: Resource, privilege: Privilege, objectToCheck: () => Option[AclObject])(f: Request[AnyContent] => Result) = Action { implicit request =>
+	def withProtected[O <: AclObject](
+		resource: Resource,
+		privilege: Privilege,
+		objectToCheck: () => Option[O]
+	)(action: Option[O] => Request[AnyContent] => Result): Action[AnyContent] = {
 
-		val user = userByUsername(this.username(request).getOrElse("")).getOrElse(guestUser)
-		val acl = new Acl(roles, user)
+		withProtectedAcl(resource, privilege, objectToCheck) {
 
-		if (acl.isAllowed(resource, privilege, objectToCheck()))
-
-			f(request)
-		else
-			onUnauthorized(request)
+			obj: Option[O] => implicit acl: Acl => action(obj)
+		}
 	}
 
 }
