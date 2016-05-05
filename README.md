@@ -21,7 +21,7 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"com.github.scyks" %% "playacl" % "0.6.0"
+	"com.github.scyks" %% "playacl" % "0.7.0"
 )
 ```
 
@@ -103,8 +103,8 @@ To configure your acl system you have to define "Resources", "Privileges", "Role
 I'll show a dummy implementation:
 
 ```scala
-import org.playscala.{Resource, Privilege, Role, Identity}
-import org.playscala.play.Security
+import com.github.scyks.playacl.{Resource, Privilege, Role, Identity}
+import com.github.scyks.playacl.play.Security
 
 /** Resources */
 object MainResource extends Resource("main")
@@ -166,8 +166,8 @@ object Admin extends Role {
 
 case class UserEntity(id: Int, roles: Long) extends Identity
 
-trait Security extends net.cc.base.acl.play.Security {
-	override def userByUsername(username: String)(implicit acl: Acl): Option[UserEntity] = {
+trait Security extends com.github.scyks.playacl.play.Security[UserEntity] {
+	def userByUsername(username: String)(implicit request: RequestHeader): Option[UserEntity] = {
 		UserRepository.findByUserName(username) match {
 			case Success(user) => Some(user)
 			case Failure(ex) => None
@@ -179,6 +179,7 @@ trait Security extends net.cc.base.acl.play.Security {
 	override def onUnauthenticated(request: RequestHeader) = Results.Redirect("/login")
 	override def onUnauthorized(request: RequestHeader) = Results.Redirect("/login")
 }
+trait AsyncSecurity extends com.github.scyks.playacl.play.AsyncSecurity[UserEntity] with Security {}
 ```
 
 # Protecting Controller instances or get ACL instance
@@ -189,20 +190,38 @@ it will be initialized there. Also when you want to retrieve the logged in user.
 The Standard implementation contains 4 Methods, which are checking if a user is logged in
 and return the Acl or the user instance or even check a resource and privilege directly.
 
+**Normal Security Trait**
+
 * `withAuth`: check if user is logged in, otherwise `onUnauthenticated` will be called
 * `withUser`: will provide the logged in or the guest user instance
 * `withAcl`: will provide the acl instance
 * `withProtected(r: Resource, p: Privilege)`: 
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
 * `withProtected(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
-    * if acl check against resource privilege on objecttoCheck fails -> `onUnauthorized` will be called
+    * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
 * `withProtectedAcl(r: Resource, p: Privilege)`: 
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
 * `withProtectedAcl(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
     * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
-    
+
+**Async Security Trait**
+
+* `withAuthAsync`: check if user is logged in, otherwise `onUnauthenticated` will be called
+* `withUserAsync`: will provide the logged in or the guest user instance
+* `withAclAsync`: will provide the acl instance
+* `withProtectedAsync(r: Resource, p: Privilege)`: 
+    * if acl check against resource privilege fails -> `onUnauthorized` will be called
+* `withProtectedAsync(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
+    * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
+* `withProtectedAclAsync(r: Resource, p: Privilege)`: 
+    * if acl check against resource privilege fails -> `onUnauthorized` will be called
+    * if logged in and acl check is true -> return Acl Instance
+* `withProtectedAclAsync(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
+    * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
+    * if logged in and acl check is true -> return Acl Instance
+
 
 # Implementation in controller
 
@@ -300,6 +319,10 @@ __with request__
 }
 ```
 ## Changelog
+
+### 0.7.0
+
+- implement async trait to use acl also n async actions
 
 ### 0.6.0
 

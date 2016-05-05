@@ -1,9 +1,8 @@
 package com.github.scyks.playacl
 
-import javax.inject.Inject
-
 import _root_.play.api.mvc._
-import akka.stream.Materializer
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * Test definition object to define a implementation of
@@ -105,7 +104,11 @@ object TestDefinitions {
 		override def onUnauthorized(request: RequestHeader) = BadRequest("Unauthorized")
 	}
 
-	class ExampleController extends Controller with Security {
+	trait AsyncSecurity extends com.github.scyks.playacl.play.AsyncSecurity[User] with Security {
+
+	}
+
+	class ExampleController extends Controller with Security with AsyncSecurity {
 
 		def withAuthAction = withAuth { username =>  implicit request =>
 			Ok("OK " + username)
@@ -133,6 +136,34 @@ object TestDefinitions {
 
 		def withProtectedAclResourceAction(id: Long) = withProtectedAcl(AdminResource, ReadPrivilege, () => Some(new User(id = id))) { user: Option[User] => acl: Acl => implicit request =>
 			Ok("OK " + user.map(_.name).getOrElse("unknown"))
+		}
+
+		def withAuthActionAsync = withAuthAsync { username =>  implicit request =>
+			Future(Ok("OK " + username))
+		}
+
+		def withUserActionAsync = withUserAsync { user: User => implicit request =>
+			Future(Ok("OK " + user.name))
+		}
+
+		def withAclActionAsync = withAclAsync { implicit acl: Acl => implicit request =>
+			Future(Ok("OK"))
+		}
+
+		def withProtectedActionAsync = withProtectedAsync(AdminResource, ReadPrivilege) { implicit request =>
+			Future(Ok("OK"))
+		}
+
+		def withProtectedResourceActionAsync(id: Long) = withProtectedAsync(AdminResource, ReadPrivilege, () => Some(new User(id = id))) {user: Option[User] => implicit request =>
+			Future(Ok("OK " + user.map(_.name).getOrElse("unknown")))
+		}
+
+		def withProtectedAclActionAsync = withProtectedAclAsync(AdminResource, ReadPrivilege) { implicit acl: Acl => implicit request =>
+			Future(Ok("OK"))
+		}
+
+		def withProtectedAclResourceActionAsync(id: Long) = withProtectedAclAsync(AdminResource, ReadPrivilege, () => Some(new User(id = id))) { user: Option[User] => acl: Acl => implicit request =>
+			Future(Ok("OK " + user.map(_.name).getOrElse("unknown")))
 		}
 	}
 }
