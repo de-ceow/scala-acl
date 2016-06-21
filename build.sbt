@@ -18,8 +18,8 @@ pomExtra := (
 		</license>
 	</licenses>
 	<scm>
-		<url>git@github.com:scyks/play-scala.git</url>
-		<connection>scm:git@github.com:scyks/play-scala.git</connection>
+		<url>git@github.com:scyks/play-acl.git</url>
+		<connection>scm:git@github.com:scyks/play-acl.git</connection>
 	</scm>
 	<developers>
 		<developer>
