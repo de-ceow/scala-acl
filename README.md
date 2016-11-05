@@ -1,12 +1,12 @@
 # Play Acl Module
 
-*A lightweight and flexible ACL module for Play Framework.*
+*A lightweight and flexible ACL component
 
 [![Build Status](https://travis-ci.org/Scyks/play-acl.svg?branch=master)](https://travis-ci.org/Scyks/play-acl)
 
 
-This is a module to implement a simple Acl system to play framework. With this
-module, you can protect controller actions, or anything else.
+This is a module to implement a simple ACL system to any of your applications. 
+By using the play plugin you can protect controller actions, or anything else.
 
 You can protect an admin area, or hide information / actions for specific users.
 It's also possible to connect a right to specific conditions for objects.
@@ -21,13 +21,14 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"com.github.scyks" %% "playacl" % "0.7.0"
+	"de.ceow" %% "scala-acl" % "1.0.0",
+	"de.ceow" %% "play-acl" % "1.0.0" // if you run play
 )
 ```
 
 # How does the ACL system work
 
-The Acl system is based on classical roles. A user can have one or more roles. Each role
+The Acl system is based on classic roles. A user can have one or more roles. Each role
 have resources and privileges. A resource is a entity or an are / module to separate
 rights. A privilege is the action the user want to do, like read, update, delete, expand,
 manage, send, ... .
@@ -40,50 +41,57 @@ Roles are objects, with a unique identifier which. The identifier is a bit value
 
 ## Define resources
 
-A resource have to extend `com.github.scyks.playacl.Resource` and contain a string identifier.
+A resource have to extend `de.ceow.security.acl.Resource` and contain a string identifier.
 
 ```scala
-object AdminResource extends com.github.scyks.playacl.Resource("admin")
+object AdminResource extends de.ceow.security.acl.Resource("admin")
 ```
 
 ## Define Privileges
 
-A privilege have to extend `com.github.scyks.playacl.Privilege` and contain a string identifier.
+A privilege have to extend `de.ceow.security.acl.Privilege` and contain a string identifier.
  
 ```scala
-object ReadPrivilege extends com.github.scyks.playacl.Privilege("read")
+object ReadPrivilege extends de.ceow.security.acl.Privilege("read")
 ```
 
 ## Define Roles
 
-A Role have to implement `com.github.scyks.playacl.Role` interface, which contains 4 abstract methods:
+A Role have to implement `de.ceow.security.acl.Role` interface, which contains 4 abstract methods:
 
 * `getIdentifier: Long`: the role identifier bit value
 * `getRoleId: String`: returns a string identifier of this role
 * `getInheritedRole: List[Role]`: a list of parent roles
-* `getPrivileges: Map[Resource, Map[Privilege, Seq[(Option[AclObject], Acl) => Boolean]]]`: the complete definition of rights
+* `getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]]`: the complete definition of rights
 
 ### Assertions
 
-Assertions, defined in `Seq[(Option[AclObject], Acl) => Boolean]` are callback functions to define
+Assertions, defined in `Seq[Acl.Assert]` are callback functions to define
 specific conditions on a resource. When you have a list of users, and want to show an edit button
-to directly edit this user u can use this. An admin will have no restriction, an anonymous user
+to directly edit this user `u` can use this. An admin will have no restriction, an anonymous user
 is denied for this operation, but a user can edit his own entry.
 
 ```scala
+object myRole extends Role {
+  override def getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]] = Map(
+    Resource -> Map(
+      Privilege -> Seq(Assert.isMe)
+    )
+  }
+}
 val myId = 4
 case class User(id: Int) extends AclObject
-// the assert definition
-(user: Option[AclObject], acl: Acl) => user match {
-	case Some(u: User) => u.exists(_.id == acl.observerEntity.id)
-	case _ => false
+object Assert {
+	// the assert definition
+	def isMe(user: Option[AclObject], acl: Acl) => user match {
+		case Some(u: User) => u.exists(_.id == acl.observerEntity.id)
+		case _ => false
+	}
 }
 
 acl.isAllowed(UserResource, EditPrivilege, Some(currentUser)) // returns true or false
 ```
-
-This is definitely not a good way to do this, and i'm currently working on
-a solution to define this in an easier way. If someone have an idea, please let me know.
+# Play Framework
 
 ## The Security Trait
 
@@ -103,8 +111,8 @@ To configure your acl system you have to define "Resources", "Privileges", "Role
 I'll show a dummy implementation:
 
 ```scala
-import com.github.scyks.playacl.{Resource, Privilege, Role, Identity}
-import com.github.scyks.playacl.play.Security
+import de.ceow.security.acl.{Resource, Privilege, Role, Identity}
+import de.ceow.security.acl.play.Security
 
 /** Resources */
 object MainResource extends Resource("main")
@@ -166,7 +174,7 @@ object Admin extends Role {
 
 case class UserEntity(id: Int, roles: Long) extends Identity
 
-trait Security extends com.github.scyks.playacl.play.Security[UserEntity] {
+trait Security extends de.ceow.security.acl.play.Security[UserEntity] {
 	def userByUsername(username: String)(implicit request: RequestHeader): Option[UserEntity] = {
 		UserRepository.findByUserName(username) match {
 			case Success(user) => Some(user)
@@ -179,7 +187,7 @@ trait Security extends com.github.scyks.playacl.play.Security[UserEntity] {
 	override def onUnauthenticated(request: RequestHeader) = Results.Redirect("/login")
 	override def onUnauthorized(request: RequestHeader) = Results.Redirect("/login")
 }
-trait AsyncSecurity extends com.github.scyks.playacl.play.AsyncSecurity[UserEntity] with Security {}
+trait AsyncSecurity extends de.ceow.security.acl.play.AsyncSecurity[UserEntity] with Security {}
 ```
 
 # Protecting Controller instances or get ACL instance
@@ -233,7 +241,7 @@ package controllers
 import <your security trait>
 import <your resources and privileges>
 import <your user entity>
-import com.github.scyks.playacl.Acl
+import de.ceow.security.acl.Acl
 
 /** Admin controller - we want to protected this */
 class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Security {
@@ -300,7 +308,7 @@ In a view it's necessary to provide implicit acl instance.
 __without request__
 
 ```scala
-@import com.github.scyks.playacl.Acl
+@import de.ceow.security.acl.Acl
 @()(implicit acl: Acl)
 
 @if(acl allows Resource to Privilege) {
@@ -311,7 +319,7 @@ __without request__
 __with request__
 
 ```scala
-@import com.github.scyks.playacl.Acl
+@import de.ceow.security.acl.Acl
 @()(implicit request: RequestHeader, acl: Acl)
 
 @if(acl allows Resource to Privilege) {
