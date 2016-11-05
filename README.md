@@ -1,8 +1,8 @@
 # Play Acl Module
 
-*A lightweight and flexible ACL component
+*A lightweight and flexible ACL component*
 
-[![Build Status](https://travis-ci.org/Scyks/play-acl.svg?branch=master)](https://travis-ci.org/Scyks/play-acl)
+[![Build Status](https://travis-ci.org/de-ceow/scala-acl.svg?branch=master)](https://travis-ci.org/Scyks/play-acl)
 
 
 This is a module to implement a simple ACL system to any of your applications. 
