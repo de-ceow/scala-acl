@@ -35,10 +35,7 @@ import de.ceow.security.acl.AllowLikeHelper.{AllowObject, AllowPrivilege, AllowR
  * is allowed for the current defined identity.
  *
  * Usage:
- * Acl ++ de.ceow.security.acl.Role - to add a role and the right definition to the acl component
- * Acl ++ de.ceow.security.acl.Role1 ++ de.ceow.security.acl.Role2
- *
- * Acl += de.ceow.security.acl.Identity - to add the current identity to the acl
+ * new Acl(List[de.ceow.security.acl.Role](role1, role2), user)
  * This identity and it's containing roles will be used for allowed checks
  *
  * How it works:
@@ -60,7 +57,8 @@ import de.ceow.security.acl.AllowLikeHelper.{AllowObject, AllowPrivilege, AllowR
  * Privileges are also just types as resources are
  *
  * Assert: type Acl.Assert
- * An assert is a function which receive "Option[AclObject]" as it's first parameter and return always a boolean.
+ * An assert is a function which receive "Option[AclObject]" as it's first parameter and the current
+ * acl object as it's second argument. The return value is always a boolean.
  * This type or assertion can be used to decide on "AclObject" if the resource/privilege is allowed or not.
  *
  * Example:

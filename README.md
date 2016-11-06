@@ -328,9 +328,17 @@ __with request__
 ```
 ## Changelog
 
+### 1.0.0
+
+- separate acl and play-acl to different modules
+- implement Privilege.deny rule
+- change inheritance to use role inheritance only
+- use Acl.Assert as type definition for assertions
+- update play framework to 2.5.x
+
 ### 0.7.0
 
-- implement async trait to use acl also n async actions
+- implement async trait to use acl also in async actions
 
 ### 0.6.0
 
@@ -342,7 +350,7 @@ __with request__
 ### 0.5.0
 
 - update scala version to 2.11.8
-- update pla framework to 2.5.0
+- update play framework to 2.5.0
 
 ### 0.4.0
 
