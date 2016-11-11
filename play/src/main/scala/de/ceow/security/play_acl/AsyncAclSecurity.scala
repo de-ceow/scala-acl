@@ -1,4 +1,4 @@
-package de.ceow.security.playacl
+package de.ceow.security.play_acl
 
 import de.ceow.security.acl._
 import play.api.mvc._

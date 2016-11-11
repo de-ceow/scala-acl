@@ -56,17 +56,18 @@ case class GenericRole(name: String, inheritedRoles: List[Role]) extends Role {
    * returns a definition of privileges for resources.
    *
    * Example:
+   * {{{
    * return Map(
    *   Resource => Seq(), // allows all in this resource
    *   Resource => Seq(
    *     Privilege, // allow privilege
    *     Privilege.deny, // deny privilege
-   *     Privilege => Seq((obj, acl) => false), // allow privilege by execute assert function
-   *     Privilege => List((obj, acl) => true, (obj, acl) => false), // allow privilege by execute both assertions both have to return true
+   *     Privilege => Seq(new MyAssert()), // allow privilege by execute assert function
+   *     Privilege => List(new MyAssert1(), new MyAssert2()), // allow privilege by execute both assertions both have to return true
    *   ),
    * )
-   *
+   * }}}
    * if you define an privilege in an resource, the whole resource is denied and only defined privilegs are allowed
    */
-  override def getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]] = Map()
+  override def getPrivileges: Map[Resource, Map[Privilege, Seq[Assert]]] = Map()
 }

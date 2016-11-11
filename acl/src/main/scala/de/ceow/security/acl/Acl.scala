@@ -56,9 +56,9 @@ import de.ceow.security.acl.AllowLikeHelper.{AllowObject, AllowPrivilege, AllowR
  * Privilege:
  * Privileges are also just types as resources are
  *
- * Assert: type Acl.Assert
- * An assert is a function which receive "Option[AclObject]" as it's first parameter and the current
- * acl object as it's second argument. The return value is always a boolean.
+ * Assert:
+ * An assert is a class with an apply method which receive "Option[AclObject]" as it's first parameter and
+ * the current acl object as it's second argument. The return value is always a boolean.
  * This type or assertion can be used to decide on "AclObject" if the resource/privilege is allowed or not.
  *
  * Example:
@@ -98,7 +98,7 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
   /**
    * rule definitions
    */
-  lazy val rules: Map[String, Seq[Acl.Assert]] = applyRules(roles)
+  lazy val rules: Map[String, Seq[Assert]] = applyRules(roles)
 
   /**
    * the role of the observer itself
@@ -132,7 +132,7 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
    * apply the rule definition from a role to a easy understandable format for the acl to
    * check against
    */
-  protected def applyRules(roles: List[Role]): Map[String, Seq[Acl.Assert]] = {
+  protected def applyRules(roles: List[Role]): Map[String, Seq[Assert]] = {
 
     val convertedRules = for {
       role ← roles
@@ -217,8 +217,3 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
   def allows(v: AclObject)(implicit acl: Acl): AllowObject = new AllowLikeHelper.AllowObject(Some(v))
 }
 
-object Acl {
-
-  /** Assertion type */
-  type Assert = (Option[AclObject], Acl) ⇒ Boolean
-}

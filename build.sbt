@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
 	organization := "de.ceow",
-	version := "1.0.0",
+	version := "1.1.0",
 	scalaVersion := "2.11.8",
   useGpg := true,
   scalacOptions ++= Seq(
@@ -20,6 +20,7 @@ lazy val commonSettings = Seq(
     "-Ywarn-value-discard"
   ),
   publishMavenStyle := true,
+  publishArtifact in Test := false,
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
@@ -57,6 +58,7 @@ lazy val acl = (project in file("acl")).
   settings(commonSettings).
   settings(
     name := "scala-acl",
+    crossScalaVersions := Seq("2.11.8", "2.12.0"),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.8.6" % Test,
       "org.slf4j" % "slf4j-simple" % "1.7.2" % Test
@@ -66,6 +68,7 @@ lazy val acl = (project in file("acl")).
 lazy val play = (project in file("play")).
   settings(commonSettings).
   settings(
+    scalaVersion := "2.11.8",
     name := "play-acl",
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.8.6" % Test,
@@ -77,6 +80,11 @@ lazy val play = (project in file("play")).
   ).
   dependsOn(acl)
 
-lazy val root = (project in file(".")).aggregate(acl, play)
+lazy val root = (project in file(".")).aggregate(acl, play).settings(
+  scalaVersion := "2.11.8",
+  publish := (),
+  publishLocal := (),
+  publishArtifact := false
+)
 
 

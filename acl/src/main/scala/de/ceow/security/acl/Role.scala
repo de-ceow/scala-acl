@@ -61,15 +61,15 @@ abstract class Role {
    *   de.ceow.security.acl.Resource → Seq(
    *     de.ceow.security.acl.Privilege, // allow privilege
    *     // allow privilege by execute assertion function
-   *     de.ceow.security.acl.Privilege → Seq((obj: Option[AclObject], acl: Acl) ⇒ true),
+   *     de.ceow.security.acl.Privilege → Seq(new MyAssert),
    *     // allow privilege by execute both assertions - both have to return true
-   *     de.ceow.security.acl.Privilege → Seq((obj: Option[AclObject], acl: Acl) ⇒ true, (obj: Option[AclObject], acl: Acl) ⇒ true)
+   *     de.ceow.security.acl.Privilege → Seq(new MyAssert)
    *   ),
    * )
    *
    * if you define an privilege in an resource, the whole resource is denied and only defined privileges are allowed
    */
-  def getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]]
+  def getPrivileges: Map[Resource, Map[Privilege, Seq[Assert]]]
 
   /**
    * check if this or inherited roles contain a given role

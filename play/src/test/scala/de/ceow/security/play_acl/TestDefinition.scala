@@ -1,4 +1,4 @@
-package de.ceow.security.playacl
+package de.ceow.security.play_acl
 
 import de.ceow.security.acl._
 import play.api.mvc.{Controller, RequestHeader, Results}
@@ -24,19 +24,14 @@ object TestDefinition {
 
     override def getIdentifier: Long = 1L
 
-    override def getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]] = {
+    override def getPrivileges: Map[Resource, Map[Privilege, Seq[Assert]]] = {
       Map(
         MainResource → Map(
           ReadPrivilege → Seq()
         ),
         UserResource → Map(
           ReadPrivilege → Seq(),
-          CreatePrivilege → Seq((obj, acl) => {
-            obj match {
-              case Some(u: User) ⇒ u.id == 3
-              case _ ⇒ false
-            }
-          })
+          CreatePrivilege → Seq(Asserts.UserIs3Assert)
         )
       )
     }
@@ -50,15 +45,10 @@ object TestDefinition {
 
     override def getIdentifier: Long = 2L
 
-    override def getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]] = {
+    override def getPrivileges: Map[Resource, Map[Privilege, Seq[Assert]]] = {
       Map(
         UserResource → Map(
-          ReadPrivilege → Seq((obj: Option[AclObject], acl: Acl) => {
-            obj match {
-              case Some(u: User) ⇒ u.id == acl.observerEntity.id
-              case _ ⇒ false
-            }
-          }),
+          ReadPrivilege → Seq(Asserts.UserIsMeAssert),
           LoggedInPrivilege → Seq()
         ),
         MainResource → Map(
@@ -76,7 +66,7 @@ object TestDefinition {
 
     override def getIdentifier: Long = 4L
 
-    override def getPrivileges: Map[Resource, Map[Privilege, Seq[Acl.Assert]]] = {
+    override def getPrivileges: Map[Resource, Map[Privilege, Seq[Assert]]] = {
       Map(
         AdminResource → Map(
           ReadPrivilege → Seq(),
@@ -113,6 +103,25 @@ object TestDefinition {
 
     override def onUnauthenticated(request: RequestHeader) = BadRequest("Unauthenticated")
     override def onUnauthorized(request: RequestHeader) = BadRequest("Unauthorized")
+  }
+
+  object Asserts {
+
+    object UserIs3Assert extends Assert {
+
+      override def apply(obj: Option[AclObject], acl: Acl): Boolean = obj match {
+        case Some(u: User) ⇒ u.id == 3
+        case _ ⇒ false
+      }
+    }
+
+    object UserIsMeAssert extends Assert {
+
+      override def apply(obj: Option[AclObject], acl: Acl): Boolean = obj match {
+        case Some(u: User) ⇒ u.id == acl.observerEntity.id
+        case _ ⇒ false
+      }
+    }
   }
 
   trait MyAsyncSecurity extends AsyncAclSecurity[User] with MySecurity {

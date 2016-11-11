@@ -1,4 +1,4 @@
-package de.ceow.security.playacl
+package de.ceow.security.play_acl
 
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Results, Security}
