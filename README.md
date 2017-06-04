@@ -21,8 +21,8 @@ You can easily use the sbt tool to download the resources to your project.
 
 ```scala
 libraryDependencies  ++=  Seq(
-	"de.ceow" %% "scala-acl" % "1.0.0",
-	"de.ceow" %% "play-acl" % "1.0.0" // if you run play
+	"de.ceow" %% "scala-acl" % "1.2.0",
+	"de.ceow" %% "play-acl" % "1.2.0" // if you run play
 )
 ```
 
@@ -210,13 +210,17 @@ and return the Acl or the user instance or even check a resource and privilege d
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
 * `withProtected(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
     * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
+* `withProtected(r: Resource, p: Privilege, objectToCheck: Acl => Option[AclObject])`: 
+    * same as above except the Acl as an input parameter
 * `withProtectedAcl(r: Resource, p: Privilege)`: 
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
 * `withProtectedAcl(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
     * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
-
+* `withProtectedAcl(r: Resource, p: Privilege, objectToCheck: Acl => Option[AclObject])`: 
+    * same as above except the Acl as an input parameter
+ 
 **Async Security Trait**
 
 * `withAuthAsync`: check if user is logged in, otherwise `onUnauthenticated` will be called
@@ -226,12 +230,16 @@ and return the Acl or the user instance or even check a resource and privilege d
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
 * `withProtectedAsync(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
     * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
+* `withProtectedAsync(r: Resource, p: Privilege, objectToCheck: Acl => Option[AclObject])`: 
+    * same as above except the Acl as an input parameter
 * `withProtectedAclAsync(r: Resource, p: Privilege)`: 
     * if acl check against resource privilege fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
 * `withProtectedAclAsync(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`: 
     * if acl check against resource privilege on objectToCheck fails -> `onUnauthorized` will be called
     * if logged in and acl check is true -> return Acl Instance
+* `withProtectedAclAsync(r: Resource, p: Privilege, objectToCheck: Acl => Option[AclObject])`: 
+    * same as above except the Acl as an input parameter
 
 
 # Implementation in controller
@@ -331,7 +339,18 @@ __with request__
 ```
 ## Changelog
 
-### 1.0.1
+### 1.2.0
+*scala-acl*
+- add Scala version (2.11.11, 2.12.1, 2.12.2)
+- simplify pattern matching
+
+*play-acl* 
+- removed `new` for case class creation
+- allow to provide acl object as an input for `objectToCheck`
+  beside `withProtectedAcl(r: Resource, p: Privilege, objectToCheck: () => Option[AclObject])`
+  also `withProtectedAcl(r: Resource, p: Privilege, objectToCheck: Acl => Option[AclObject])`
+
+### 1.1.0
 
 - Change Assert from function to abstract class
 
