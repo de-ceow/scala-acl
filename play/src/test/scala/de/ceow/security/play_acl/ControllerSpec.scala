@@ -112,8 +112,9 @@ class ControllerSpec extends PlaySpecification with Results {
           implicit val mat = app.materializer
           val request = FakeRequest(GET, "/")
           val result = call(controller.withProtectedResourceAction(3), request)
+          val result2 = call(controller.withProtectedResourceAction, request)
 
-          contentAsString(result) must be equalTo "Unauthorized"
+          contentAsString(result2) must be equalTo "Unauthorized"
         }
 
         "calls onUnauthorized when logged in" in new WithApplication(appWithConfig) {
@@ -121,8 +122,10 @@ class ControllerSpec extends PlaySpecification with Results {
           implicit val mat = app.materializer
           val request = FakeRequest(GET, "/").withSession(Security.username -> "user")
           val result = call(controller.withProtectedResourceAction(1), request)
+          val result2 = call(controller.withProtectedResourceAction, request)
 
           contentAsString(result) must be equalTo "Unauthorized"
+          contentAsString(result2) must be equalTo "Unauthorized"
         }
 
         "returns result when user is authenticated" in new WithApplication(appWithConfig) {
@@ -130,8 +133,10 @@ class ControllerSpec extends PlaySpecification with Results {
           implicit val mat = app.materializer
           val request = FakeRequest(GET, "/").withSession(Security.username -> "admin")
           val result = call(controller.withProtectedResourceAction(2), request)
+          val result2 = call(controller.withProtectedResourceAction, request)
 
           contentAsString(result) must be equalTo "OK user"
+          contentAsString(result2) must be equalTo "OK user"
         }
       }
 
@@ -173,8 +178,10 @@ class ControllerSpec extends PlaySpecification with Results {
           implicit val mat = app.materializer
           val request = FakeRequest(GET, "/")
           val result = call(controller.withProtectedAclResourceAction(3), request)
+          val result2 = call(controller.withProtectedAclResourceAction, request)
 
           contentAsString(result) must be equalTo "Unauthorized"
+          contentAsString(result2) must be equalTo "Unauthorized"
         }
 
         "calls onUnauthorized when logged in" in new WithApplication(appWithConfig) {
@@ -182,8 +189,10 @@ class ControllerSpec extends PlaySpecification with Results {
           implicit val mat = app.materializer
           val request = FakeRequest(GET, "/").withSession(Security.username -> "user")
           val result = call(controller.withProtectedAclResourceAction(1), request)
+          val result2 = call(controller.withProtectedAclResourceAction, request)
 
           contentAsString(result) must be equalTo "Unauthorized"
+          contentAsString(result2) must be equalTo "Unauthorized"
         }
 
         "returns result when user is authenticated" in new WithApplication(appWithConfig) {
@@ -191,8 +200,10 @@ class ControllerSpec extends PlaySpecification with Results {
           implicit val mat = app.materializer
           val request = FakeRequest(GET, "/").withSession(Security.username -> "admin")
           val result = call(controller.withProtectedAclResourceAction(2), request)
+          val result2 = call(controller.withProtectedAclResourceAction, request)
 
           contentAsString(result) must be equalTo "OK user"
+          contentAsString(result2) must be equalTo "OK user"
         }
       }
 

@@ -93,12 +93,12 @@ object TestDefinition {
 
     override def userByUsername(username: String)(implicit request: RequestHeader): Option[User] = username match {
 
-      case "user" ⇒ Some(new User(1, "user", 3L))
-      case "admin" ⇒ Some(new User(2, "admin", 7L))
+      case "user" ⇒ Some(User(1, "user", 3L))
+      case "admin" ⇒ Some(User(2, "admin", 7L))
       case _ ⇒ None
     }
     override def guestRole: Role = Guest
-    override def guestUser: User = new User(1, "guest", 1L)
+    override def guestUser: User = User(1, "guest", 1L)
     override def roles: List[Role] = List(Guest, Registered, Admin)
 
     override def onUnauthenticated(request: RequestHeader) = BadRequest("Unauthenticated")
@@ -146,7 +146,11 @@ object TestDefinition {
       Ok("OK")
     }
 
-    def withProtectedResourceAction(id: Long) = withProtected(AdminResource, ReadPrivilege, () ⇒ Some(new User(id = id))) {user: Option[User] ⇒ implicit request ⇒
+    def withProtectedResourceAction(id: Long) = withProtected(AdminResource, ReadPrivilege, () ⇒ Some(User(id = id))) {user: Option[User] ⇒ implicit request ⇒
+      Ok("OK " + user.map(_.name).getOrElse("unknown"))
+    }
+
+    def withProtectedResourceAction = withProtected(AdminResource, ReadPrivilege, acl ⇒ Some(User(id = acl.observerEntity.id))) {user: Option[User] ⇒ implicit request ⇒
       Ok("OK " + user.map(_.name).getOrElse("unknown"))
     }
 
@@ -154,7 +158,11 @@ object TestDefinition {
       Ok("OK")
     }
 
-    def withProtectedAclResourceAction(id: Long) = withProtectedAcl(AdminResource, ReadPrivilege, () ⇒ Some(new User(id = id))) { user: Option[User] ⇒ acl: Acl ⇒ implicit request ⇒
+    def withProtectedAclResourceAction(id: Long) = withProtectedAcl(AdminResource, ReadPrivilege, () ⇒ Some(User(id = id))) { user: Option[User] ⇒ acl: Acl ⇒ implicit request ⇒
+      Ok("OK " + user.map(_.name).getOrElse("unknown"))
+    }
+
+    def withProtectedAclResourceAction = withProtectedAcl(AdminResource, ReadPrivilege, acl ⇒ Some(User(id = acl.observerEntity.id))) { user: Option[User] ⇒ acl: Acl ⇒ implicit request ⇒
       Ok("OK " + user.map(_.name).getOrElse("unknown"))
     }
 
@@ -174,7 +182,10 @@ object TestDefinition {
       Future(Ok("OK"))
     }
 
-    def withProtectedResourceActionAsync(id: Long) = withProtectedAsync(AdminResource, ReadPrivilege, () ⇒ Some(new User(id = id))) {user: Option[User] ⇒ implicit request ⇒
+    def withProtectedResourceActionAsync(id: Long) = withProtectedAsync(AdminResource, ReadPrivilege, () ⇒ Some(User(id = id))) {user: Option[User] ⇒ implicit request ⇒
+      Future(Ok("OK " + user.map(_.name).getOrElse("unknown")))
+    }
+    def withProtectedResourceActionAsync = withProtectedAsync(AdminResource, ReadPrivilege, acl ⇒ Some(User(id = acl.observerEntity.id))) {user: Option[User] ⇒ implicit request ⇒
       Future(Ok("OK " + user.map(_.name).getOrElse("unknown")))
     }
 
@@ -182,7 +193,11 @@ object TestDefinition {
       Future(Ok("OK"))
     }
 
-    def withProtectedAclResourceActionAsync(id: Long) = withProtectedAclAsync(AdminResource, ReadPrivilege, () ⇒ Some(new User(id))) { user: Option[User] ⇒ acl: Acl ⇒ implicit request ⇒
+    def withProtectedAclResourceActionAsync(id: Long) = withProtectedAclAsync(AdminResource, ReadPrivilege, () ⇒ Some(User(id))) { user: Option[User] ⇒ acl: Acl ⇒ implicit request ⇒
+      Future(Ok("OK " + user.map(_.name).getOrElse("unknown")))
+    }
+
+    def withProtectedAclResourceActionAsync = withProtectedAclAsync(AdminResource, ReadPrivilege, acl ⇒ Some(User(acl.observerEntity.id))) { user: Option[User] ⇒ acl: Acl ⇒ implicit request ⇒
       Future(Ok("OK " + user.map(_.name).getOrElse("unknown")))
     }
   }

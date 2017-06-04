@@ -60,7 +60,7 @@ trait AsyncAclSecurity[I <: Identity] extends AclSecurity[I] {
 	 */
 	def withAclAsync(action: Acl ⇒ Request[AnyContent] ⇒ Future[Result]): Action[AnyContent] = withUserAsync { user ⇒ implicit request ⇒
 
-		action(new Acl(roles, user))(request)
+		action(Acl(roles, user))(request)
 	}
 
 	/**
@@ -93,10 +93,37 @@ trait AsyncAclSecurity[I <: Identity] extends AclSecurity[I] {
 	)(f: Option[O] ⇒ Acl ⇒ Request[AnyContent] ⇒ Future[Result]): Action[AnyContent] = withAclAsync { acl: Acl ⇒ implicit request ⇒
 
 		val obj = objectToCheck()
-		acl.isAllowed(resource, privilege, obj) match {
+		if (acl.isAllowed(resource, privilege, obj)) {
 
-			case true ⇒ f(obj)(acl)(request)
-			case false ⇒ onUnauthorizedAsync(request)
+			f(obj)(acl)(request)
+		} else {
+
+			onUnauthorizedAsync(request)
+		}
+	}
+
+	/**
+	  * this method will check if the user is allowed for resource and privilege on
+	  * specific object and applies an instance of Acl to the action.
+	  * If the Acl check will fail the result of "onUnauthorized" is returned
+	  *
+	  * def myAction = withProtectedAcl(myResource, myPrivilege, Acl => MyObject) { Acl: Acl[I] ⇒ implicit request
+	  * 		// Ok(Acl.observerIdentity.roles.toString)
+	  * }
+	  */
+	def withProtectedAclAsync[O <: AclObject](
+		resource: Resource,
+		privilege: Privilege,
+		objectToCheck: Acl ⇒ Option[O]
+	)(f: Option[O] ⇒ Acl ⇒ Request[AnyContent] ⇒ Future[Result]): Action[AnyContent] = withAclAsync { acl: Acl ⇒ implicit request ⇒
+
+		val obj = objectToCheck(acl)
+		if (acl.isAllowed(resource, privilege, obj)) {
+
+			f(obj)(acl)(request)
+		} else {
+
+			onUnauthorizedAsync(request)
 		}
 	}
 
@@ -126,6 +153,27 @@ trait AsyncAclSecurity[I <: Identity] extends AclSecurity[I] {
 		resource: Resource,
 		privilege: Privilege,
 		objectToCheck: () ⇒ Option[O]
+	)(action: Option[O] ⇒ Request[AnyContent] ⇒ Future[Result]): Action[AnyContent] = {
+
+		withProtectedAclAsync(resource, privilege, objectToCheck) {
+
+			obj: Option[O] ⇒ implicit acl: Acl ⇒ action(obj)
+		}
+	}
+
+	/**
+	 * This method will check if the user is allowed for given resource and privilege
+  	 * on specific object
+	 * If the Acl check will fail the result of "onUnauthorized" is returned
+	 *
+	 * def myAction = withProtected(myResource, myPrivilege) {implicit request
+	 * 		// Ok("done")
+	 * }
+	 */
+	def withProtectedAsync[O <: AclObject](
+		resource: Resource,
+		privilege: Privilege,
+		objectToCheck: Acl ⇒ Option[O]
 	)(action: Option[O] ⇒ Request[AnyContent] ⇒ Future[Result]): Action[AnyContent] = {
 
 		withProtectedAclAsync(resource, privilege, objectToCheck) {
