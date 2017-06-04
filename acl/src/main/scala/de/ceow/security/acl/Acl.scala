@@ -118,10 +118,10 @@ case class Acl(roles: List[Role], user: Identity) extends AllowLike {
     val inheritedRoles = roleRegistry.filter(role => (user.roles & role.getIdentifier) == role.getIdentifier)
     val cleaned = inheritedRoles.foldLeft(List[Role]()) { (clean,role) =>
 
-      inheritedRoles.exists(_.contains(role)) match {
-
-        case true ⇒ clean
-        case false ⇒ role :: clean
+      if (inheritedRoles.exists(_.contains(role))) {
+        clean
+      } else {
+        role :: clean
       }
     }
 

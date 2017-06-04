@@ -58,7 +58,7 @@ lazy val acl = (project in file("acl")).
   settings(commonSettings).
   settings(
     name := "scala-acl",
-    crossScalaVersions := Seq("2.11.8", "2.12.0"),
+    crossScalaVersions := Seq("2.11.8", "2.11.11", "2.12.0", "2.12.1", "2.12.2"),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.8.6" % Test,
       "org.slf4j" % "slf4j-simple" % "1.7.2" % Test
