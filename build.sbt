@@ -1,6 +1,9 @@
+lazy val aclVersion = "1.2.0"
+lazy val playVersion = "1.3.0"
+
 lazy val commonSettings = Seq(
 	organization := "de.ceow",
-	version := "1.2.0",
+	version := aclVersion,
 	scalaVersion := "2.11.8",
   useGpg := true,
   scalacOptions ++= Seq(
@@ -58,6 +61,7 @@ lazy val acl = (project in file("acl")).
   settings(commonSettings).
   settings(
     name := "scala-acl",
+    version := aclVersion,
     crossScalaVersions := Seq("2.11.8", "2.11.11", "2.12.0", "2.12.1", "2.12.2"),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.8.6" % Test,
@@ -68,6 +72,7 @@ lazy val acl = (project in file("acl")).
 lazy val play = (project in file("play")).
   settings(commonSettings).
   settings(
+    version := playVersion,
     crossScalaVersions := Seq("2.11.8", "2.11.11", "2.12.0", "2.12.1", "2.12.2"),
     name := "play-acl",
     libraryDependencies ++= Seq(
