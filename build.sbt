@@ -68,7 +68,7 @@ lazy val acl = (project in file("acl")).
 lazy val play = (project in file("play")).
   settings(commonSettings).
   settings(
-    scalaVersion := "2.11.8",
+    crossScalaVersions := Seq("2.11.8", "2.11.11", "2.12.0", "2.12.1", "2.12.2"),
     name := "play-acl",
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.8.6" % Test,
