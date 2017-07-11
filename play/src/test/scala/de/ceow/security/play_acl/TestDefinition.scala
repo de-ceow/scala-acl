@@ -1,10 +1,13 @@
 package de.ceow.security.play_acl
 
-import de.ceow.security.acl._
-import play.api.mvc.{Controller, RequestHeader, Results}
+import javax.inject.Inject
 
-import scala.concurrent.Future
+import de.ceow.security.acl._
+import play.api.Configuration
+import play.api.mvc._
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object TestDefinition {
 
@@ -128,7 +131,7 @@ object TestDefinition {
 
   }
 
-  class ExampleController extends Controller with MySecurity with MyAsyncSecurity {
+  class ExampleController @Inject()(override val configuration: Configuration) extends InjectedController with MySecurity with MyAsyncSecurity {
 
     def withAuthAction = withAuth { username ⇒  implicit request ⇒
       Ok("OK " + username)

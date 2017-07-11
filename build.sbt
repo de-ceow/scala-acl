@@ -68,14 +68,14 @@ lazy val acl = (project in file("acl")).
 lazy val play = (project in file("play")).
   settings(commonSettings).
   settings(
-    scalaVersion := "2.11.8",
+    crossScalaVersions := Seq("2.11.8", "2.11.11", "2.12.0", "2.12.1", "2.12.2"),
     name := "play-acl",
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.8.6" % Test,
       "org.slf4j" % "slf4j-simple" % "1.7.2" % Test,
-      "com.typesafe.play" %% "play-specs2" % "2.5+" % Test,
-      "com.typesafe.play" %% "play-test" % "2.5+" % Test,
-      "com.typesafe.play" %% "play" % "2.5+"
+      "com.typesafe.play" %% "play-specs2" % "2.6+" % Test,
+      "com.typesafe.play" %% "play-test" % "2.6+" % Test,
+      "com.typesafe.play" %% "play" % "2.6+"
     )
   ).
   dependsOn(acl)

@@ -252,10 +252,11 @@ package controllers
 import <your security trait>
 import <your resources and privileges>
 import <your user entity>
+import play.api.mvc.InjectedController
 import de.ceow.security.acl.Acl
 
 /** Admin controller - we want to protected this */
-class Admin @Inject()(val messagesApi: MessagesApi) extends Controller with Security {
+class Admin @Inject()(val messagesApi: MessagesApi, override val configuration: Configuration) extends InjectedController with Security {
 
 	def dashboard = withAuth { implicit request =>
 		Ok("")

@@ -1,6 +1,7 @@
 package de.ceow.security.play_acl
 
 import de.ceow.security.acl._
+import play.api.Configuration
 import play.api.mvc._
 
 /**
@@ -8,6 +9,29 @@ import play.api.mvc._
  * wraps play.api.mvc.Security
  */
 trait AclSecurity[I <: Identity] {
+
+	/**
+	 * will return an ActionBuilder which is needed by PlayFramework to build actions
+	 *
+	 * This method is also part of PlayFrameworks BaseController/ AbstractController
+	 * and InjectedController
+	 *
+	 * @return
+	 */
+	def Action: ActionBuilder[Request, AnyContent]
+
+	/**
+	 * configuration object of the PlayFramework which contains the configuration of
+	 * the session key for the username
+	 *
+	 * @return
+	 */
+	def configuration: Configuration
+
+	/**
+	 * name of the user name key in the session which is configured in the configurations
+	 */
+	lazy val sessionUsernameKey: String = configuration.get[String]("session.username")
 
 	/**
 	 * will return a Option[Identity]
@@ -32,7 +56,7 @@ trait AclSecurity[I <: Identity] {
 	/**
 	 * will return the username / email from the session
 	 */
-	def username(request: RequestHeader) = request.session.get(Security.username)
+	def username(request: RequestHeader): Option[String] = request.session.get(sessionUsernameKey)
 
 	/**
 	 * method, what happens when a user is not authenticated or
