@@ -22,7 +22,8 @@ You can easily use the sbt tool to download the resources to your project.
 ```scala
 libraryDependencies  ++=  Seq(
 	"de.ceow" %% "scala-acl" % "1.2.0",
-	"de.ceow" %% "play-acl" % "1.2.0" // if you run play
+	"de.ceow" %% "play-acl" % "1.2.0" // for play 2.5
+	"de.ceow" %% "play-acl" % "1.3.0" // for play 2.6
 )
 ```
 
