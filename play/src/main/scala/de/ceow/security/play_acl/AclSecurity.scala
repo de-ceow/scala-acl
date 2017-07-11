@@ -11,7 +11,7 @@ import play.api.mvc._
 trait AclSecurity[I <: Identity] {
 
 	/**
-	 * will return a ActionBuilder which is needed by PlayFramework to build actions
+	 * will return an ActionBuilder which is needed by PlayFramework to build actions
 	 *
 	 * This method is also part of PlayFrameworks BaseController/ AbstractController
 	 * and InjectedController
